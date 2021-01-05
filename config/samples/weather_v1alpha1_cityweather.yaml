@@ -1,0 +1,10 @@
+apiVersion: weather.aputtur.com/v1alpha1
+kind: CityWeather
+metadata:
+  name: cityweather-sample
+spec:
+  city: 
+    - london
+    - newyork 
+  days: 1
+

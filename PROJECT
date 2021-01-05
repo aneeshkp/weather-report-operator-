@@ -1,0 +1,8 @@
+domain: aputtur.com
+layout: ansible.sdk.operatorframework.io/v1
+projectName: weather-report-operator
+resources:
+- group: weather
+  kind: CityWeather
+  version: v1alpha1
+version: 3-alpha

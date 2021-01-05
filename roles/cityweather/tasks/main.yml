@@ -1,0 +1,51 @@
+- name: Search for all Pods labelled app=weather-report
+  community.kubernetes.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: '{{ ansible_operator_meta.namespace }}'
+    label_selectors:
+      - app = weather-report
+  register: pod_list
+
+- name: build new city list
+  set_fact:
+    new_list: "{{ new_list | default([]) + [ ansible_operator_meta.name ~ '-' ~ item ] }}"
+  with_items: "{{ city }}"
+
+- name: Demonstrate merged city lists
+  debug: var=new_list
+
+- name: Print pod names
+  debug:
+    msg: "pod_list: {{ pod_list | json_query('resources[*].metadata.name')  }} "
+
+- name: Delete the not existsing pod in new spec
+  community.kubernetes.k8s:
+    api_version: v1
+    kind: Pod
+    namespace: '{{ ansible_operator_meta.namespace }}' 
+    name: "{{ item }}"
+    state: absent
+  with_items: "{{ pod_list | json_query('resources[*].metadata.name') }}"
+  when: item is not in new_list  
+    
+- name: start pods
+  community.kubernetes.k8s:
+    definition:
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: '{{ ansible_operator_meta.name }}-{{ item }}' 
+        namespace: '{{ ansible_operator_meta.namespace }}'
+        labels:
+          app: "weather-report"
+          city: "{{ item }}"
+          days: "1"
+          version: v0.1
+      spec:
+       containers:
+       - name: web
+         image: "tutum/curl"
+         command: ["sh","-c","curl -s http://wttr.in/{{ item }}?1 && sleep 360"] 
+      state: present
+  with_items: "{{ city }}"

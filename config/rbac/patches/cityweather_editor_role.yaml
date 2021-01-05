@@ -1,0 +1,27 @@
+---
+- op: add
+  path: /rules/-
+  value:
+    apiGroups:
+      - weather.aputtur.com
+    resources:
+      - cityweathers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+- op: add
+  path: /rules/-
+  value:
+    apiGroups:
+      - weather.aputtur.com
+    resources:
+      - cityweathers/status
+    verbs:
+      - get
+      - patch
+      - update
